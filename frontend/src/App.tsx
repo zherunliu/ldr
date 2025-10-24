@@ -4,6 +4,7 @@ import AuthenticationPage from "./auth/AuthenticationPage";
 import Layout from "./layout/Layout";
 import ChallengeGenerator from "./challenge/ChallengeGenerator";
 import HistoryPanel from "./history/HistoryPanel";
+import "./App.css";
 
 function App() {
   return (
