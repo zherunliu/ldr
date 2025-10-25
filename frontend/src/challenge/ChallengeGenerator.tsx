@@ -1,14 +1,13 @@
 import { useState } from "react";
 import MCQChallenge from "./MCQChallenge";
+import type { TChallenge, TDifficulty, TQuota } from "./type";
 
 function ChallengeGenerator() {
-  const [challenge, setChallenge] = useState(null);
+  const [challenge, setChallenge] = useState<TChallenge | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(
-    "easy"
-  );
-  const [quota, setQuota] = useState(null);
+  const [difficulty, setDifficulty] = useState<TDifficulty>("easy");
+  const [quota, setQuota] = useState<TQuota | null>(null);
 
   const fetchQuota = async () => {};
   const generateChallenge = async () => {};
@@ -29,7 +28,7 @@ function ChallengeGenerator() {
           <select
             id="difficulty"
             value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}
+            onChange={(e) => setDifficulty(e.target.value as TDifficulty)}
             disabled={isLoading}
           >
             <option value="easy">Easy</option>
@@ -39,7 +38,7 @@ function ChallengeGenerator() {
         </div>
         <button
           onClick={generateChallenge}
-          disabled={isLoading || (quota && quota.quota_remaining === 0)}
+          disabled={isLoading || quota?.quota_remaining === 0}
           className="generate-button"
         >
           {isLoading ? "Generating" : "Generate Challenge"}

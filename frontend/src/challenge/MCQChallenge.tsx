@@ -1,12 +1,5 @@
 import { useState } from "react";
-
-type TChallenge = {
-  difficulty: string;
-  title: string;
-  options: string[];
-  correct_answer_id: number;
-  explanation: string;
-};
+import { type TChallenge } from "./type";
 
 function MCQChallenge({
   challenge,
