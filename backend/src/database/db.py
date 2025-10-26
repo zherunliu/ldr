@@ -22,9 +22,9 @@ def create_challenge_quota(db: Session, user_id: str):
 
 def reset_quota(db: Session, quota: models.ChallengeQuota):
     now = datetime.now()
-    if now - quota.last_reset_date > timedelta(hours=24): # type: ignore
-        quota.quota_remaining = 10 # type: ignore
-        quota.last_reset_date = now # type: ignore
+    if now - quota.last_reset_date > timedelta(hours=24):  # type: ignore
+        quota.quota_remaining = 10  # type: ignore
+        quota.last_reset_date = now  # type: ignore
         db.commit()
         db.refresh(quota)
     return quota
