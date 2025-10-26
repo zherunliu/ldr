@@ -1,4 +1,5 @@
-from fastapi import HTTPException
+from typing import Dict
+from fastapi import status, HTTPException, Request
 from clerk_backend_api import Clerk, AuthenticateRequestOptions
 import os
 from dotenv import load_dotenv
@@ -9,7 +10,7 @@ clerk_sdk = Clerk(bearer_auth=os.getenv("CLERK_SECRET_KEY"))
 
 
 # authenticate and get user details
-def authenticate(request):
+def authenticate(request: Request) -> Dict[str, str | None]:
     try:
         request_state = clerk_sdk.authenticate_request(
             request,
@@ -19,10 +20,15 @@ def authenticate(request):
             ),
         )
         if not request_state.is_signed_in:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+            )
         user_id = None
         if request_state.payload:
             user_id = request_state.payload.get("sub")
-        return {"user_id", user_id}
+        return {"user_id": user_id}
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Invalid credentials: " + str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Invalid credentials: " + str(e),
+        )
