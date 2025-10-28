@@ -13,3 +13,5 @@ uvx dependency_name # temporary use
 
 uv init --script main.py # create temporary env with main script
 ```
+
+[uv, ruff](https://docs.astral.sh/)
