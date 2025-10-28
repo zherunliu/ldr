@@ -6,6 +6,7 @@ from ..utils import authenticate
 from ..database.models import get_db
 import json
 from datetime import datetime
+from ..ai_generator import generate_challenge_with_ai
 
 router = APIRouter()
 
@@ -29,17 +30,27 @@ async def generate_challenge(request: ChallengeRequest, db: Session = Depends(ge
         quota = get_challenge_quota(db, user_id)
         if not quota:
             create_challenge_quota(db, user_id)
-        quota = reset_quota(db, quota)
+        quota = reset_quota_if_need(db, quota)
         if quota.quota_remaining <= 0:  # type: ignore
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Quota exhausted"
             )
-        challenge_data = None
-        # TODO: generate challenge
+        challenge_data = generate_challenge_with_ai(request.difficulty)
+        new_challenge = create_challenge(
+            db=db, difficulty=request.difficulty, created_by=user_id, **challenge_data
+        )
 
         quota.quota_remaining -= 1  # type: ignore
         db.commit()
-        return challenge_data
+        return {
+            "id": new_challenge.id,
+            "difficulty": request.difficulty,
+            "title": new_challenge.title,
+            "options": json.dumps(new_challenge.options),
+            "correct_answer_id": new_challenge.correct_answer_id,
+            "explanation": new_challenge.explanation,
+            "timestamp": new_challenge.date_created.isoformat(),
+        }
 
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -72,5 +83,5 @@ async def get_quota(request: Request, db: Session = Depends(get_db)):
     quota = get_challenge_quota(db, user_id)
     if not quota:
         create_challenge_quota(db, user_id)
-    quota = reset_quota(db, quota)
+    quota = reset_quota_if_need(db, quota)
     return quota
