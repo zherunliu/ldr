@@ -2,10 +2,9 @@ import os
 import json
 from openai import OpenAI
 from typing import Dict, Any
+from dotenv import load_dotenv
 
-"""for test"""
-# from dotenv import load_dotenv
-# load_dotenv()
+load_dotenv()
 
 client = OpenAI(
     api_key=os.getenv("ALIYUN_API_KEY"),
@@ -18,13 +17,13 @@ def generate_challenge_with_ai(difficulty: str) -> Dict[str, Any]:
     You are a programming expert.
     Proficient in C++, Python, JavaScript, and TypeScript.
     Proficient in Node.js, React, Vue3, and the Express development framework.
-
-    Your task is to generate a programming problem with a difficulty ranges from easy, medium, to hard.
+    Your task is to generate a programming problem with a difficulty level of {{ difficulty }}.
+    The difficulty level of the problem ranges from easy, medium, to hard.
     The problem has four options, with only one correct answer.
     The problem is formatted as JSON. Example:
     {
         "title": "Problem description",
-        "difficulty": "Difficulty level of the problem, ranges from easy, medium, to hard",
+        "difficulty": "easy", // Difficulty level of the problem, ranges from easy, medium, to hard
         "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
         "correct_answer_id": 1, // Index of the correct answer, starting at 0
         "explanation": "Explanation to the problem"
@@ -32,7 +31,7 @@ def generate_challenge_with_ai(difficulty: str) -> Dict[str, Any]:
     """
     try:
         response = client.chat.completions.create(
-            model="qwen-flash",
+            model="qwen-plus",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {

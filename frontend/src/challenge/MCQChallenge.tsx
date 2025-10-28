@@ -16,7 +16,7 @@ function MCQChallenge({
       ? JSON.parse(challenge.options)
       : challenge.options;
   const handleOptionSelect = (index: number) => {
-    if (!selectedOption) {
+    if (selectedOption === null) {
       setSelectedOption(index);
       setShouldShowExplanation(true);
     }
@@ -24,7 +24,10 @@ function MCQChallenge({
 
   const getOptionClass = (index: number) => {
     if (selectedOption === null) return "option";
-    if (index === challenge.correct_answer_id) {
+    if (
+      index === challenge.correct_answer_id &&
+      (index === selectedOption || selectedOption !== null)
+    ) {
       return "option correct";
     }
     if (index === selectedOption && index !== challenge.correct_answer_id) {
@@ -36,7 +39,7 @@ function MCQChallenge({
     <>
       <div className="challenge-display">
         <p>
-          <strong>Difficulty</strong>:{challenge.difficulty}
+          <strong>Difficulty</strong>: {challenge.difficulty}
         </p>
         <p className="challenge-title">{challenge.title}</p>
         <div className="options">

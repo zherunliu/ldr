@@ -5,7 +5,6 @@ from ..database.db import *
 from ..utils import authenticate
 from ..database.models import get_db
 import json
-from datetime import datetime
 from ..ai_generator import generate_challenge_with_ai
 
 router = APIRouter()
@@ -18,9 +17,11 @@ class ChallengeRequest(BaseModel):
 
 
 @router.post("/generate-challenge")
-async def generate_challenge(request: ChallengeRequest, db: Session = Depends(get_db)):
+async def generate_challenge(
+    request: ChallengeRequest, request_obj: Request, db: Session = Depends(get_db)
+):
     try:
-        user_details = authenticate(request)
+        user_details = authenticate(request_obj)
         user_id = user_details.get("user_id")
         if user_id is None:
             raise HTTPException(
@@ -37,7 +38,13 @@ async def generate_challenge(request: ChallengeRequest, db: Session = Depends(ge
             )
         challenge_data = generate_challenge_with_ai(request.difficulty)
         new_challenge = create_challenge(
-            db=db, difficulty=request.difficulty, created_by=user_id, **challenge_data
+            db=db,
+            difficulty=request.difficulty,
+            created_by=user_id,
+            options=json.dumps(challenge_data["options"]),
+            correct_answer_id=challenge_data["correct_answer_id"],
+            explanation=challenge_data["explanation"],
+            title=challenge_data["title"],
         )
 
         quota.quota_remaining -= 1  # type: ignore
@@ -46,7 +53,7 @@ async def generate_challenge(request: ChallengeRequest, db: Session = Depends(ge
             "id": new_challenge.id,
             "difficulty": request.difficulty,
             "title": new_challenge.title,
-            "options": json.dumps(new_challenge.options),
+            "options": new_challenge.options,
             "correct_answer_id": new_challenge.correct_answer_id,
             "explanation": new_challenge.explanation,
             "timestamp": new_challenge.date_created.isoformat(),

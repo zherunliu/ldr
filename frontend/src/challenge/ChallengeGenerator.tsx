@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MCQChallenge from "./MCQChallenge";
 import type { TChallenge, TDifficulty, TQuota } from "./type";
+import { UseApi } from "../utils/api";
 
 function ChallengeGenerator() {
   const [challenge, setChallenge] = useState<TChallenge | null>(null);
@@ -8,10 +9,44 @@ function ChallengeGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [difficulty, setDifficulty] = useState<TDifficulty>("easy");
   const [quota, setQuota] = useState<TQuota | null>(null);
+  const { makeRequest } = UseApi();
 
-  const fetchQuota = async () => {};
-  const generateChallenge = async () => {};
-  const getNextResetTime = () => {};
+  useEffect(() => {
+    fetchQuota();
+  }, []);
+
+  const fetchQuota = async () => {
+    try {
+      const data = await makeRequest("quota");
+      setQuota(data);
+    } catch (err) {
+      console.error("Error fetching quota:", err);
+    }
+  };
+  const generateChallenge = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await makeRequest("generate-challenge", {
+        method: "POST",
+        body: JSON.stringify({ difficulty }),
+      });
+      setChallenge(data);
+      fetchQuota();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to generate challenge"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const getNextResetTime = () => {
+    if (!quota?.last_reset_date) return null;
+    const resetDate = new Date(quota.last_reset_date);
+    resetDate.setHours(resetDate.getHours() * 24);
+    return resetDate;
+  };
 
   return (
     <>
@@ -20,7 +55,9 @@ function ChallengeGenerator() {
 
         <div className="quota-display">
           <p>Challenge remaining today:{quota?.quota_remaining}</p>
-          {quota?.quota_remaining === 0 && <p>Next reset :{0}</p>}
+          {quota?.quota_remaining === 0 && (
+            <p>Next reset :{getNextResetTime()?.toLocaleDateString()}</p>
+          )}
         </div>
 
         <div className="difficulty-selector">
@@ -50,7 +87,9 @@ function ChallengeGenerator() {
         </div>
       )}
 
-      {challenge && <MCQChallenge challenge={challenge} />}
+      {challenge && !isLoading && <MCQChallenge challenge={challenge} />}
+
+      {/* {challenge && !isLoading ? <MCQChallenge challenge={challenge} /> : null} */}
     </>
   );
 }
