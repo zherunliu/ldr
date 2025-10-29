@@ -44,7 +44,7 @@ function ChallengeGenerator() {
   const getNextResetTime = () => {
     if (!quota?.last_reset_date) return null;
     const resetDate = new Date(quota.last_reset_date);
-    resetDate.setHours(resetDate.getHours() * 24);
+    resetDate.setHours(resetDate.getHours() + 24);
     return resetDate;
   };
 
@@ -56,7 +56,7 @@ function ChallengeGenerator() {
         <div className="quota-display">
           <p>Challenge remaining today:{quota?.quota_remaining}</p>
           {quota?.quota_remaining === 0 && (
-            <p>Next reset :{getNextResetTime()?.toLocaleDateString()}</p>
+            <p>Next reset :{getNextResetTime()?.toLocaleString()}</p>
           )}
         </div>
 
