@@ -77,6 +77,21 @@ async def my_history(request: Request, db: Session = Depends(get_db)):
     return {"challenges": challenges}
 
 
+@router.get("/history-delete/{id}")
+async def history_delete(id: int, request: Request, db: Session = Depends(get_db)):
+    user_details = authenticate(request)
+    user_id = user_details.get("user_id")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized: missing user_id",
+        )
+
+    if delete_user_challenge(db, id):
+        return "Delete successfully"
+    return "Failed to delete"
+
+
 @router.get("/quota")
 async def get_quota(request: Request, db: Session = Depends(get_db)):
     user_details = authenticate(request)

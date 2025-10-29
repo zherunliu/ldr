@@ -51,6 +51,7 @@ function HistoryPanel() {
                   challenge={challenge}
                   key={challenge.id}
                   showExplanation
+                  fetchHistory={fetchHistory}
                 />
               );
             })}
