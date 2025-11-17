@@ -39,7 +39,7 @@ body {
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
   padding: 0 1rem;
 }
 
@@ -56,7 +56,7 @@ body {
 
 .header-content nav a {
   color: var(--text-color);
-  text-decoration: none;
+  /* text-decoration: none; */
   font-weight: 500;
   transition: color 0.2s;
 }
