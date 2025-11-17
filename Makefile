@@ -35,6 +35,11 @@ docs: ## Create/Update documentation
 	git commit -m "docs: Create/Update docs"
 	git push origin main
 
+.PHONY: comment
+comment: ## Add or update code comments
+	git commit -m "comment: Add/Update code comments"
+	git push origin main
+
 .PHONY: perf
 perf: ## Performance optimization
 	git commit -m "perf: Performance optimization"
